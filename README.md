@@ -60,34 +60,42 @@ You should now have an EFI system partition, a BIOS boot partition, and a Linux 
 ## Encryption and Configuring Partitions
 
 Load the encryption modules.
+
     modprobe dm-crypt
     modprobe dm-mod
 
 Set up encryption on our luks lvm partition.
+
     cryptsetup luksFormat -v -s 512 -h sha512 /dev/<partion 3>
 
 Mount the drive.
+
     cryptsetup open /dev/<partition 3> luks_lvm
 
 Create volumes and volume groups.
+
     pvcreate /dev/mapper/luks_lvm
     vgcreate arch /dev/mapper/luks_lvm
 
 Create swap space. A good size is your RAM + 2GB.
 For example, if you have 64GB of RAM, make your swap size 66GB.
+
     lvcreate -n swap -L 66G arch
 
 Create root and home volumes. The below commands will create a root volume with 200GB and use the remaining space for the home volume.
+
     lvcreate -n root -L 200G arch
     lvcreate -n home -l +100%FREE arch
 
 Create the filesystems.
+
     mkfs.fat -F32 /dev/<partition 1>
     mkfs.fat ext4 /dev/<partition 2>
     mkfs.btrfs -L root /dev/mapper/arch-root
     mkfs.btrfs -L home /dev/mapper/arch-home
 
 Set up swap device
+
     mkswap /dev/mapper/arch-swap
 
 ## Mounting
