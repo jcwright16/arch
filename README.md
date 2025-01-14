@@ -93,22 +93,28 @@ Set up swap device
 ## Mounting
 
 Mount swap
+
     swapon /dev/mapper/arch-swap
     swapon -a
 
 Mount root
+
     mount /dev/mapper/arch-root /mnt
 
 Create home and boot
+
     mkdir -p /mnt/{home,boot}
 
 Mount the boot partition
+
     mount /dev/mapper/arch-home /mnt/home
 
 Create the EFI directory
+
     mkdir /mnt/boot/efi
 
 Mount the EFI directory
+
     mount /dev/<partition 1> /mnt/boot/efi
 
 ## Install Arch
@@ -116,53 +122,68 @@ Mount the EFI directory
     pacstrap -K /mnt base base-devel linux linux-firmware
 
 Load the file table 
+
     genfstab -U -p /mnt > /mnt/etc/fstab
 
 chroot into your installation
+
     arch-chroot /mnt /bin/bash
 
 ## Configuring
 
 ### Text Editor
 Install a text editor (I prefer neovim, but you can use nano or another text editor of your choice).
+
     pacman -S neovim
 
 ### Decrypting Volumes
 Open up mkinitcpio.conf
+
     nvim /etc/mkinitcpio.conf
 
 add `encrypt` and `lvm2` into the hooks
+
     HOOKS=(... block encrypt lvm2 filesystems fsck)
 
 install lvm2
+
     pacman -S lvm2
 
 ### Bootloader
 Install grub and eifbootmgr
+
     pacman -S grub efi bootmgr
 
 Set up grub on efi partition
+
     grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=grub --removable
 
 Obtain your lvm partition device UUID and copy it.
+
     blkid /dev/<partition 3>
 
 Open the grub file.
+
     nvim /etc/default/grub
 
 Add the following kernel parameters.
+
     rootwait root=/dev/mapper/arch-root cryptdevice=UUID=<uuid>:luks_lvm
 
 ### Keyfile
+
     mkdir /secure
 
 Root keyfile
+
     dd if=/dev/random of=/secure/root_keyfile.bin bs=512 count=8
 
 Change permissions
+
     chmod 000 /secure/*
 
 Add to partitions
+
     cryptsetup luksAddKey /dev/<partition 3> /secure/root_keyfile.bin
 
     nvim /etc/mkinitcpio.conf
@@ -171,15 +192,18 @@ Add to partitions
 
 ### Grub
 Create grub config
+
     grub-mkconfig -o /boot/grub/grub.cfg
     grub-mkconfig -o /boot/efi/EFI/arch/grub.cfg
 
 ## System Configuration
 
 ### Timezone
+
     ln -sf /usr/share/zoneinfo/America/Indianapolis /etc/localtime
 
 ### NTP
+
     nvim /etc/systemd/timesyncd.conf
 
 Add in the NTP servers
@@ -189,12 +213,15 @@ Add in the NTP servers
     FallbackNTP=0.pool.ntp.org 1.pool.ntp.org
 
 Enable timesyncd
+
     systemctl enable systemd-timesyncd.service
 
 ## Locale
+
     nvim /etc/locale.gen
 
 Uncomment the UTF8 lang you want
+
     en_US.UTF-8 UTF-8
 
     locale-gen
@@ -204,33 +231,44 @@ Uncomment the UTF8 lang you want
     LANG=en_US.UTF-8
 
 ### Hostname
+
     echo "<machinename>" > /etc/hostname
 
 ### Create users
+
 Secure root user with a password
+
     passwd
 
 Install preferred shell
+
     pacman -S bash
 
 Add a new user
+
     useradd -m -G wheel -s /bin/bash <username>
 
 Set user password
+
     passwd <username>
 
 Add wheen group to sudoers
+
     EDITOR=nvim visudo
 
 Uncomment
+
 `%wheel ALL=(ALL:ALL) ALL
 
 ### Network Connectivity
+
     pacman -S networkmanager
     systemctl enable NetworkManager
 
 ### Display Manager
+
 Choose a desktop environment and install it along with a display manager. Below are examples for Gnome, Cinnamon, and KDE Plasma.
+
     pacman -S gnome
     systemctl enable gdm
 
@@ -242,16 +280,20 @@ Choose a desktop environment and install it along with a display manager. Below 
     systemctl enable NetworkManager.service
 
 ### Microcode
+
 For AMD
+
     pacman -S amd-ucode
 
 For Intel
+
     pacman -S intel -ucode
 
     grub-mkconfig -o /boot/grub/grub.cfg
     grub-mkconfig -o /boot/efi/EFI/arch/grub.cfg
 
 ## Reboot
+
     exit
     umount -R /mnt
     reboot now
