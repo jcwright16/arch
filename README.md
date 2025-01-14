@@ -266,7 +266,7 @@ Add wheen group to sudoers
 
 Uncomment
 
-`%wheel ALL=(ALL:ALL) ALL
+`%wheel ALL=(ALL:ALL) ALL`
 
 ### Network Connectivity
 
