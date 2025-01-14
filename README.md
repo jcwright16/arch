@@ -36,3 +36,23 @@ To get the device id for the drive you want to install Arch on, run `lsblk`. Thi
 
     dd if=/dev/urandom of=/dev/<device id> status=progress bs=4096
 
+Create partitions on the disk. We will create three here. Run `gdisk /dev/<device id>`. This will open a command prompt. You can view the current partition table using the `p` command.
+
+Here we will be running a clean install. Replace the existing partition table with a new one using the `o` command. Then enter `n` to create your first new partition. After creating the new partion, you will be prompted to enter a series of values: the partition id, the first sector, the last sector, and the partition code, which sets the type of partition you are creating. For our three partitions, use the following values (blank bullet points indicate accepting the default):
+
+* 1
+* 
+* +1G
+* ef00
+
+* 2
+* 
+* +4G
+* ef02
+
+* 3
+* 
+* 
+* 8309
+
+You should now have an EFI system partition, a BIOS boot partition, and a Linux LUKS partition, respectively.
