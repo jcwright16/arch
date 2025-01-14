@@ -32,8 +32,7 @@ To get the device id for the drive you want to install Arch on, run `lsblk`. Thi
 
 > Write Random Data [Optional]
 
-    This is an optional step for added security. It can take several hours to complete. 
+    #This is an optional step for added security. It can take several hours to complete. 
 
-    `dd if=/dev/urandom of=/dev/<device id> status=progress bs=4096`
+    dd if=/dev/urandom of=/dev/<device id> status=progress bs=4096
 
-S
